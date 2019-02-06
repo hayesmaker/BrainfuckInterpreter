@@ -36,6 +36,7 @@ namespace BrainfuckInterpreter
         private static bool _addTotalTicks;
 
         // Used in interpreting
+        private static bool _outputNumber;
         private static bool _skip;
         private static int _skipLoop;
         private static int _memIndex;
@@ -55,13 +56,22 @@ namespace BrainfuckInterpreter
         /// <param name="step">Wait on user input before debugging to next character</param>
         /// <param name="timer">If debuggin, wait x milliseconds to go to next step</param>
         /// <param name="clear">Run Console.Clear() on every step for cleaner viewring</param>
-        private static void Main(FileInfo file, bool verbose, bool debug, bool clear, int timer, bool step = true)
+        /// <param name="num">Output numbers instead of characters</param>
+        private static void Main(FileInfo file,
+                                bool verbose,
+                                bool debug,
+                                bool clear,
+                                int timer,
+                                bool step = true,
+                                bool num = false)
         {
             if (!file.Exists)
             {
                 Console.WriteLine("Please provide a valid file path");
                 return;
             }
+
+            _outputNumber = num;
 
             if (debug)
             {
@@ -178,6 +188,11 @@ namespace BrainfuckInterpreter
                         }
                         break;
                     case '<':
+                        if (_memIndex == 0)
+                        {
+                            Console.Write("\nError trying to move left at cell 0\n");
+                            Environment.Exit(0);
+                        }
                         _memIndex--;
                         break;
                     case '+':
@@ -187,7 +202,14 @@ namespace BrainfuckInterpreter
                         _mem[_memIndex]--;
                         break;
                     case '.':
-                        Console.Write(_mem[_memIndex]);
+                        if (_outputNumber)
+                        {
+                            Console.Write((int)_mem[_memIndex]);
+                        }
+                        else
+                        {
+                            Console.Write(_mem[_memIndex]);
+                        }
                         _output += _mem[_memIndex];
                         break;
                     case ',':
